@@ -6,14 +6,20 @@
 
   tasks:
 
+    # BASE SETUP
+
     - name: update apt cache
       apt:
         update_cache: yes
 
-    - name: install sudo
+    - name: install required packages
       apt:
-        name: sudo
+        name:
+          - sudo
+          - ufw
         state: present
+
+    # USER SETUP
 
     - name: create new user
       user:
@@ -29,7 +35,7 @@
         key: "{{ lookup('file', ssh_public_key_path) }}"
         state: present
 
-    - name: allow passwordless sudo for user
+    - name: allow passwordless sudo
       copy:
         dest: "/etc/sudoers.d/{{ new_user }}"
         content: "{{ new_user }} ALL=(ALL) NOPASSWD:ALL"
@@ -40,3 +46,28 @@
       service:
         name: ssh
         state: started
+
+    # SSH HARDENING
+
+    - name: disable password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+
+    - name: disable root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+
+    - name: change ssh port
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port'
+        line: "Port {{ ssh_port }}"
+
+    - name: restart ssh
+      service:
+        name: ssh
+        state: restarted

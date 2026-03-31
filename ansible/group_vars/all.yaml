@@ -1,4 +1,5 @@
 new_user: aditya
+ssh_port: 22 # change later
 
 ssh_public_key_path: >-
   {{
