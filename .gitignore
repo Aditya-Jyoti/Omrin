@@ -1,2 +1,7 @@
-.env.yaml
+.vagrant/
+*.retry
+.vault_pass.txt
+ansible/group_vars/secrets.yaml
 .env
+.env.*
+
