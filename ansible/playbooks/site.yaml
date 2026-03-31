@@ -1,0 +1,42 @@
+- hosts: all
+  become: true
+
+  vars_files:
+    - ../group_vars/all.yaml
+
+  tasks:
+
+    - name: update apt cache
+      apt:
+        update_cache: yes
+
+    - name: install sudo
+      apt:
+        name: sudo
+        state: present
+
+    - name: create new user
+      user:
+        name: "{{ new_user }}"
+        groups: sudo
+        append: yes
+        shell: /bin/bash
+        create_home: yes
+
+    - name: add ssh key for new user
+      authorized_key:
+        user: "{{ new_user }}"
+        key: "{{ lookup('file', ssh_public_key_path) }}"
+        state: present
+
+    - name: allow passwordless sudo for user
+      copy:
+        dest: "/etc/sudoers.d/{{ new_user }}"
+        content: "{{ new_user }} ALL=(ALL) NOPASSWD:ALL"
+        mode: '0440'
+        validate: "visudo -cf %s"
+
+    - name: ensure ssh is running
+      service:
+        name: ssh
+        state: started

@@ -1,0 +1,8 @@
+new_user: aditya
+
+ssh_public_key_path: >-
+  {{
+    lookup('env', 'HOME') + '/.ssh/id_ed25519.pub'
+    if lookup('file', lookup('env', 'HOME') + '/.ssh/id_ed25519.pub', errors='ignore') != ''
+    else lookup('env', 'HOME') + '/.ssh/id_rsa.pub'
+  }}
