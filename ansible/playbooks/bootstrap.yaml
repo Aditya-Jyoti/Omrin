@@ -4,6 +4,9 @@
   vars_files:
     - ../group_vars/all.yaml
 
+  roles:
+    - ssh
+
   tasks:
 
     # BASE SETUP
@@ -16,7 +19,6 @@
       apt:
         name:
           - sudo
-          - ufw
         state: present
 
     # USER SETUP
@@ -46,28 +48,3 @@
       service:
         name: ssh
         state: started
-
-    # SSH HARDENING
-
-    - name: disable password authentication
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?PasswordAuthentication'
-        line: 'PasswordAuthentication no'
-
-    - name: disable root login
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?PermitRootLogin'
-        line: 'PermitRootLogin no'
-
-    - name: change ssh port
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?Port'
-        line: "Port {{ ssh_port }}"
-
-    - name: restart ssh
-      service:
-        name: ssh
-        state: restarted

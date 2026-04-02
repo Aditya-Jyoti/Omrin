@@ -4,58 +4,7 @@
   vars_files:
     - ../group_vars/all.yaml
 
-  tasks:
-
-    # ENSURE PACKAGES
-
-    - name: ensure required packages
-      apt:
-        name:
-          - ufw
-        state: present
-
-    # FIREWALL
-
-    - name: allow ssh port
-      ufw:
-        rule: allow
-        port: "{{ ssh_port }}"
-
-    - name: allow http
-      ufw:
-        rule: allow
-        port: 80
-
-    - name: allow https
-      ufw:
-        rule: allow
-        port: 443
-
-    - name: enable firewall
-      ufw:
-        state: enabled
-
-    # SSH CONFIG 
-
-    - name: ensure password auth disabled
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?PasswordAuthentication'
-        line: 'PasswordAuthentication no'
-
-    - name: ensure root login disabled
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?PermitRootLogin'
-        line: 'PermitRootLogin no'
-
-    - name: ensure ssh port is correct
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^#?Port'
-        line: "Port {{ ssh_port }}"
-
-    - name: restart ssh if needed
-      service:
-        name: ssh
-        state: restarted
+  roles:
+    - docker
+    - firewall
+    - ssh
