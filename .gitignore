@@ -1,7 +1,7 @@
 .vagrant/
 *.retry
-.vault_pass.txt
-ansible/group_vars/secrets.yaml
+.vault_pass
 .env
 .env.*
+!.env.j2
 

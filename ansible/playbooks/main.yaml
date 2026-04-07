@@ -3,8 +3,11 @@
 
   vars_files:
     - ../group_vars/all.yaml
+    - ../group_vars/secrets.yaml
 
   roles:
     - docker
     - firewall
     - ssh
+    - services
+

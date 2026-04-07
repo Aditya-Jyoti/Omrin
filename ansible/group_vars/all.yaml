@@ -1,5 +1,9 @@
 new_user: aditya
 ssh_port: 22 # change later
+domain: "omrin.in"
+
+root_path: "/home/{{ new_user }}/Omrin"
+services_path: "{{ playbook_dir }}/../services"
 
 ssh_public_key_path: >-
   {{
@@ -7,3 +11,10 @@ ssh_public_key_path: >-
     if lookup('file', lookup('env', 'HOME') + '/.ssh/id_ed25519.pub', errors='ignore') != ''
     else lookup('env', 'HOME') + '/.ssh/id_rsa.pub'
   }}
+
+
+services:
+  - name: traefik
+    enabled: true
+
+enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
