@@ -4,6 +4,7 @@ domain: "omrin.in"
 
 root_path: "/home/{{ new_user }}/Omrin"
 services_path: "{{ playbook_dir }}/../services"
+data_path: "/data/omrin"
 
 ssh_public_key_path: >-
   {{
@@ -15,6 +16,8 @@ ssh_public_key_path: >-
 
 services:
   - name: traefik
+    enabled: true
+  - name: syncbrowser
     enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
