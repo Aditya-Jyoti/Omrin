@@ -4,11 +4,7 @@
   vars_files:
     - ../group_vars/all.yaml
 
-  roles:
-    - ssh
-
   tasks:
-
     # BASE SETUP
 
     - name: update apt cache
@@ -21,7 +17,8 @@
           - sudo
         state: present
 
-    # USER SETUP
+    # USER SETUP — must complete before the ssh role disables password auth,
+    # otherwise risk locking yourself out.
 
     - name: create new user
       user:
@@ -41,10 +38,17 @@
       copy:
         dest: "/etc/sudoers.d/{{ new_user }}"
         content: "{{ new_user }} ALL=(ALL) NOPASSWD:ALL"
-        mode: '0440'
+        mode: "0440"
         validate: "visudo -cf %s"
 
     - name: ensure ssh is running
       service:
         name: ssh
         state: started
+
+    # SSH HARDENING — imported as a role here (not under `roles:`) so it runs
+    # AFTER the deploy user and its key are in place. Note: `roles:` always runs
+    # before `tasks:`, so import_role is the only way to control ordering.
+    - name: harden ssh
+      import_role:
+        name: ssh
