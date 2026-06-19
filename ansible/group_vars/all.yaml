@@ -20,6 +20,8 @@ services:
     enabled: true
   - name: radicale
     enabled: true
+  - name: uptime-kuma
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
