@@ -1,0 +1,20 @@
+services:
+  linkding:
+    image: sissbruecker/linkding:latest
+    container_name: linkding
+    restart: unless-stopped
+    environment:
+      LD_SUPERUSER_NAME: ${SUPERUSER_NAME:?}
+      LD_SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD:?}
+      LD_CSRF_TRUSTED_ORIGINS: https://link.${DOMAIN:?}
+    volumes:
+      - ${DATA_PATH:?}/linkding/data:/etc/linkding/data
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.linkding.rule=Host(`link.${DOMAIN:?}`)
+
+networks:
+  proxy:
+    external: true

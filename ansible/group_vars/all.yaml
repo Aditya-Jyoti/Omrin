@@ -13,5 +13,7 @@ services:
     enabled: true
   - name: syncbrowser
     enabled: true
+  - name: linkding
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
