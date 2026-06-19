@@ -1,0 +1,17 @@
+services:
+  radicale:
+    image: grepular/radicale:3
+    container_name: radicale
+    volumes:
+      - ${DATA_PATH:?}/radicale/config:/etc/radicale:ro
+      - ${DATA_PATH:?}/radicale/data:/var/lib/radicale
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.radicale.rule=Host(`caldav-server.${DOMAIN:?}`)
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

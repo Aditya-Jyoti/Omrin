@@ -1,0 +1,20 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: https://pw.${DOMAIN:?}
+      SIGNUPS_ALLOWED: "false"
+    volumes:
+      - ${DATA_PATH:?}/vaultwarden/data:/data/
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vaultwarden.rule=Host(`pw.${DOMAIN:?}`)
+      - traefik.http.routers.vaultwarden.entrypoints=websecure
+
+networks:
+  proxy:
+    external: true

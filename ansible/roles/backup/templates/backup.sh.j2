@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Backs up {{ data_path }} to OneDrive using rclone.
+# Runs as root (via systemd) so it can read container-owned data files
+# regardless of UID, but uses the deploy user's rclone config explicitly.
+#
+# Postgres-backed services run their own pgbackup sidecar container (see
+# their docker-compose.yaml) which dumps to {{ data_path }}/<service>/db_dumps
+# on its own schedule. This script just syncs everything in data_path,
+# excluding the raw pgdata directories which are covered by those dumps.
+#
+# Sends progress notifications to ntfy at start, success, and failure.
+#
+# Managed by Ansible - do not edit directly, edit roles/backup/templates/backup.sh.j2 instead.
+
+set -uo pipefail
+
+RCLONE_CONFIG="/home/{{ new_user }}/.config/rclone/rclone.conf"
+LOG_FILE="/home/{{ new_user }}/.local/log/omrin-backup.log"
+NTFY_URL="https://ntfy.{{ domain }}/{{ ntfy_backup_topic }}"
+
+notify() {
+  local priority="$1"
+  local tags="$2"
+  local title="$3"
+  local message="$4"
+  curl -s \
+    -H "Title: $title" \
+    -H "Priority: $priority" \
+    -H "Tags: $tags" \
+    -d "$message" \
+    "$NTFY_URL" > /dev/null 2>&1 || true
+}
+
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+echo "[$TIMESTAMP] Starting backup of {{ data_path }} -> onedrive:{{ onedrive_backup_path }}" >> "$LOG_FILE"
+notify "default" "arrows_counterclockwise" "Omrin backup started" "Syncing {{ data_path }} to OneDrive..."
+
+RCLONE_OUTPUT=$(rclone sync "{{ data_path }}" "onedrive:{{ onedrive_backup_path }}" \
+  --config "$RCLONE_CONFIG" \
+  --log-file="$LOG_FILE" \
+  --log-level INFO \
+  --exclude "*.tmp" \
+{% for path in backup_exclude_paths %}
+  --exclude "{{ path }}" \
+{% endfor %}
+  --transfers 4 \
+  --checkers 8 2>&1)
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+  echo "[$TIMESTAMP] Backup completed successfully" >> "$LOG_FILE"
+  notify "default" "white_check_mark" "Omrin backup completed" "Backup finished successfully at $TIMESTAMP."
+else
+  echo "[$TIMESTAMP] Backup FAILED with exit code $EXIT_CODE" >> "$LOG_FILE"
+  # ntfy messages have a size limit, so trim the error output to the last ~10 lines
+  ERROR_SNIPPET=$(echo "$RCLONE_OUTPUT" | tail -10)
+  notify "urgent" "x,rotating_light" "Omrin backup FAILED" "Exit code $EXIT_CODE at $TIMESTAMP.
+
+$ERROR_SNIPPET"
+fi
+
+exit $EXIT_CODE

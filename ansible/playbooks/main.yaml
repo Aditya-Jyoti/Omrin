@@ -1,0 +1,20 @@
+- hosts: all
+  become: true
+
+  vars_files:
+    - ../group_vars/all.yaml
+    - ../group_vars/secrets.yaml
+
+  roles:
+    - role: tools
+      tags: tools
+    - role: docker
+      tags: docker
+    - role: firewall
+      tags: firewall
+    - role: ssh
+      tags: ssh
+    - role: services
+      tags: services
+    - role: backup
+      tags: backup

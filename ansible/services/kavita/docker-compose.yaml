@@ -1,0 +1,22 @@
+services:
+  kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Kolkata
+    volumes:
+      - ${DATA_PATH:?}/kavita/manga:/manga
+      - ${DATA_PATH:?}/kavita/books:/books
+      - ${DATA_PATH:?}/kavita/light_novels:/light_novels
+      - ${DATA_PATH:?}/kavita/config:/kavita/config
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kavita.rule=Host(`read.${DOMAIN:?}`)
+      - traefik.http.services.kavita.loadbalancer.server.port=5000
+
+networks:
+  proxy:
+    external: true

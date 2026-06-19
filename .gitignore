@@ -1,2 +1,7 @@
-.env.yaml
+.vagrant/
+*.retry
+.vault_pass
 .env
+.env.*
+!.env.j2
+

@@ -1,0 +1,22 @@
+- name: ensure password auth disabled
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+
+- name: ensure root login disabled
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+
+- name: ensure ssh port is correct
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?Port'
+    line: "Port {{ ssh_port }}"
+
+- name: restart ssh if needed
+  service:
+    name: ssh
+    state: restarted

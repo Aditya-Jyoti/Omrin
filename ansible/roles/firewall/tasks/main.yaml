@@ -1,0 +1,24 @@
+- name: ensure required packages
+  apt:
+    name:
+      - ufw
+    state: present
+
+- name: allow ssh port
+  ufw:
+    rule: allow
+    port: "{{ ssh_port }}"
+
+- name: allow http
+  ufw:
+    rule: allow
+    port: 80
+
+- name: allow https
+  ufw:
+    rule: allow
+    port: 443
+
+- name: enable firewall
+  ufw:
+    state: enabled

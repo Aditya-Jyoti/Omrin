@@ -1,0 +1,70 @@
+- name: install apt-available tools
+  apt:
+    name: "{{ apt_tools }}"
+    state: present
+    update_cache: true
+
+- name: check if ctop is already installed
+  stat:
+    path: /usr/local/bin/ctop
+  register: ctop_binary
+
+- name: get latest ctop release version
+  uri:
+    url: https://api.github.com/repos/bcicen/ctop/releases/latest
+    return_content: true
+  register: ctop_release
+  when: not ctop_binary.stat.exists
+
+- name: download and install ctop
+  get_url:
+    url: "https://github.com/bcicen/ctop/releases/download/{{ ctop_release.json.tag_name }}/ctop-{{ ctop_release.json.tag_name[1:] }}-linux-amd64"
+    dest: /usr/local/bin/ctop
+    mode: '0755'
+  when: not ctop_binary.stat.exists
+
+- name: ensure fish is a valid login shell
+  lineinfile:
+    path: /etc/shells
+    line: /usr/bin/fish
+    state: present
+
+- name: set fish as default shell for deploy user
+  user:
+    name: "{{ new_user }}"
+    shell: /usr/bin/fish
+
+- name: set system hostname
+  hostname:
+    name: "{{ server_hostname }}"
+
+- name: ensure hostname is set in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ server_hostname }}"
+    state: present
+
+- name: disable dynamic motd scripts (update-motd.d)
+  file:
+    path: /etc/update-motd.d
+    state: absent
+
+- name: clear static motd
+  copy:
+    content: ""
+    dest: /etc/motd
+    mode: '0644'
+
+- name: disable PAM motd-news (Debian/Ubuntu fetches a remote news blurb)
+  file:
+    path: /etc/default/motd-news
+    state: absent
+  ignore_errors: true
+
+- name: disable last-login message on ssh
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^session\s+optional\s+pam_motd\.so'
+    state: absent
+  ignore_errors: true

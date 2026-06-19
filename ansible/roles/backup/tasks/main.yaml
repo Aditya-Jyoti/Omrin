@@ -1,0 +1,74 @@
+# Installs rclone and sets up an automated, scheduled backup of data_path to OneDrive via a systemd service + timer
+
+- name: ensure prerequisites for rclone install script
+  apt:
+    name:
+      - curl
+      - unzip
+    state: present
+
+- name: install/update rclone via official install script
+  shell: curl -s https://rclone.org/install.sh | bash
+  register: rclone_install
+  failed_when: false
+  changed_when: "'is up to date' not in rclone_install.stdout"
+
+- name: verify rclone is actually installed
+  command: rclone version
+  changed_when: false
+
+- name: ensure rclone config directory exists
+  file:
+    path: "/home/{{ new_user }}/.config/rclone"
+    state: directory
+    owner: "{{ new_user }}"
+    group: "{{ new_user }}"
+    mode: "0700"
+
+- name: deploy rclone config (contains OneDrive token)
+  copy:
+    content: "{{ rclone_config }}"
+    dest: "/home/{{ new_user }}/.config/rclone/rclone.conf"
+    owner: "{{ new_user }}"
+    group: "{{ new_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: ensure backup log directory exists
+  file:
+    path: "/home/{{ new_user }}/.local/log"
+    state: directory
+    owner: "{{ new_user }}"
+    group: "{{ new_user }}"
+    mode: "0755"
+
+- name: deploy backup script
+  template:
+    src: backup.sh.j2
+    dest: "/home/{{ new_user }}/backup.sh"
+    owner: "{{ new_user }}"
+    group: "{{ new_user }}"
+    mode: "0750"
+
+- name: deploy systemd service for backup
+  template:
+    src: omrin-backup.service.j2
+    dest: /etc/systemd/system/omrin-backup.service
+    mode: "0644"
+  notify: reload systemd
+
+- name: deploy systemd timer for backup schedule
+  template:
+    src: omrin-backup.timer.j2
+    dest: /etc/systemd/system/omrin-backup.timer
+    mode: "0644"
+  notify: reload systemd
+
+- name: flush handlers to ensure systemd is reloaded before enabling timer
+  meta: flush_handlers
+
+- name: enable and start the backup timer
+  systemd:
+    name: omrin-backup.timer
+    enabled: true
+    state: started

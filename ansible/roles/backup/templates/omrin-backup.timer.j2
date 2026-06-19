@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily timer for Omrin backup to OneDrive
+
+[Timer]
+OnCalendar={{ backup_schedule | default('03:00') }}
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target
