@@ -22,6 +22,8 @@ services:
     enabled: true
   - name: uptime-kuma
     enabled: true
+  - name: ntfy
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
