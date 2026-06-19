@@ -26,6 +26,8 @@ services:
     enabled: true
   - name: vaultwarden
     enabled: true
+  - name: kavita
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
