@@ -6,8 +6,11 @@
     - ../group_vars/secrets.yaml
 
   roles:
-    - docker
-    - firewall
-    - ssh
-    - services
-
+    - role: docker
+      tags: docker
+    - role: firewall
+      tags: firewall
+    - role: ssh
+      tags: ssh
+    - role: services
+      tags: services
