@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.3
+    image: traefik:v3.7
     container_name: traefik
     restart: unless-stopped
 
@@ -28,9 +28,6 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entryPoint=web"
-
-    environment:
-      - DOCKER_API_VERSION=1.41
 
     ports:
       - "80:80"
