@@ -24,6 +24,8 @@ services:
     enabled: true
   - name: ntfy
     enabled: true
+  - name: vaultwarden
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
