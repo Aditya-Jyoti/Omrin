@@ -1,6 +1,7 @@
 new_user: aditya
 ssh_port: 22 # change later
 domain: "omrin.in"
+server_hostname: omrin
 
 root_path: "/home/{{ new_user }}/Omrin"
 services_path: "{{ playbook_dir }}/../services"
@@ -28,6 +29,8 @@ services:
   - name: vaultwarden
     enabled: true
   - name: kavita
+    enabled: true
+  - name: beszel
     enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
