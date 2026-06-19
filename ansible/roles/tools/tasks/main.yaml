@@ -33,3 +33,38 @@
   user:
     name: "{{ new_user }}"
     shell: /usr/bin/fish
+
+- name: set system hostname
+  hostname:
+    name: "{{ server_hostname }}"
+
+- name: ensure hostname is set in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ server_hostname }}"
+    state: present
+
+- name: disable dynamic motd scripts (update-motd.d)
+  file:
+    path: /etc/update-motd.d
+    state: absent
+
+- name: clear static motd
+  copy:
+    content: ""
+    dest: /etc/motd
+    mode: '0644'
+
+- name: disable PAM motd-news (Debian/Ubuntu fetches a remote news blurb)
+  file:
+    path: /etc/default/motd-news
+    state: absent
+  ignore_errors: true
+
+- name: disable last-login message on ssh
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^session\s+optional\s+pam_motd\.so'
+    state: absent
+  ignore_errors: true
