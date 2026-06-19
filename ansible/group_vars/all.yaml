@@ -10,6 +10,7 @@ ssh_public_key_path: "~/.ssh/personal.pub"
 
 onedrive_backup_path: "Omrin-Backups" # folder name created in OneDrive root
 backup_schedule: "03:00" # systemd OnCalendar time, server-local time
+backup_exclude_paths: {}
 
 services:
   - name: traefik
