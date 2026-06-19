@@ -9,3 +9,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.radicale.rule=Host(`caldav-server.${DOMAIN:?}`)
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
