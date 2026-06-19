@@ -32,6 +32,8 @@ services:
     enabled: true
   - name: beszel
     enabled: true
+  - name: omni-tools
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 

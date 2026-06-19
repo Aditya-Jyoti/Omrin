@@ -1,0 +1,14 @@
+services:
+  omni-tools:
+    image: iib0011/omni-tools:latest
+    container_name: omni-tools
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.omni-tools.rule=Host(`tools.${DOMAIN:?}`)
+
+networks:
+  proxy:
+    external: true
