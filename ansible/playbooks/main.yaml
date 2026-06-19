@@ -6,6 +6,8 @@
     - ../group_vars/secrets.yaml
 
   roles:
+    - role: tools
+      tags: tools
     - role: docker
       tags: docker
     - role: firewall
@@ -14,3 +16,5 @@
       tags: ssh
     - role: services
       tags: services
+    - role: backup
+      tags: backup

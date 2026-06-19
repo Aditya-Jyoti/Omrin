@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Backs up {{ data_path }} to OneDrive using rclone.
+# Runs as root (via systemd) so it can read container-owned data files
+# regardless of UID, but uses the deploy user's rclone config explicitly.
+# Managed by Ansible - do not edit directly, edit roles/backup/templates/backup.sh.j2 instead.
+
+set -uo pipefail
+
+RCLONE_CONFIG="/home/{{ new_user }}/.config/rclone/rclone.conf"
+LOG_FILE="/home/{{ new_user }}/.local/log/omrin-backup.log"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+echo "[$TIMESTAMP] Starting backup of {{ data_path }} -> onedrive:{{ onedrive_backup_path }}" >> "$LOG_FILE"
+
+rclone sync "{{ data_path }}" "onedrive:{{ onedrive_backup_path }}" \
+  --config "$RCLONE_CONFIG" \
+  --log-file="$LOG_FILE" \
+  --log-level INFO \
+  --exclude "*.tmp" \
+  --transfers 4 \
+  --checkers 8
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+  echo "[$TIMESTAMP] Backup completed successfully" >> "$LOG_FILE"
+else
+  echo "[$TIMESTAMP] Backup FAILED with exit code $EXIT_CODE" >> "$LOG_FILE"
+fi
+
+exit $EXIT_CODE

@@ -17,3 +17,20 @@ services:
     enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
+
+apt_tools:
+  - fish
+  - btop
+  - htop
+  - tmux
+  - git
+  - curl
+  - wget
+  - unzip
+  - ncdu
+  - tree
+  - jq
+  - mosh
+
+onedrive_backup_path: "Omrin-Backups" # folder name created in OneDrive root
+backup_schedule: "03:00" # systemd OnCalendar time, server-local time
