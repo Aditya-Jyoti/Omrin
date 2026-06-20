@@ -10,8 +10,12 @@ data_path: "/data/omrin"
 ssh_public_key_path: "~/.ssh/personal.pub"
 
 onedrive_backup_path: "Omrin-Backups" # folder name created in OneDrive root
-backup_schedule: "03:00" # systemd OnCalendar time, server-local time
-backup_exclude_paths: {}
+backup_schedule: "00:30" # systemd OnCalendar time, server-local time CEST
+
+backup_exclude_paths:
+  - "arr-stack/downloads/**" # transient torrent staging, not worth backing up
+
+arr_stack_enabled: false
 
 services:
   - name: traefik
