@@ -1,0 +1,64 @@
+services:
+  backend:
+    image: zimengxiong/excalidash-backend:latest
+    container_name: excalidash-backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_PROVIDER=sqlite
+      - DATABASE_URL=file:/app/prisma/dev.db
+      - PORT=8000
+      - NODE_ENV=production
+      - AUTH_MODE=${AUTH_MODE:-local}
+      - FRONTEND_URL=https://draw.${DOMAIN:?}
+      - TRUST_PROXY=1
+      - ENFORCE_HTTPS_REDIRECT=false
+      - JWT_SECRET=${JWT_SECRET:?}
+      - CSRF_SECRET=${CSRF_SECRET:?}
+    volumes:
+      - ${DATA_PATH:?}/excalidash/prisma:/app/prisma
+    networks:
+      - excalidash-internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: zimengxiong/excalidash-frontend:latest
+    container_name: excalidash-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - proxy
+      - excalidash-internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.excalidash.rule=Host(`draw.${DOMAIN:?}`)
+      - traefik.http.services.excalidash.loadbalancer.server.port=80
+      - traefik.docker.network=proxy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:80",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  proxy:
+    external: true
+  excalidash-internal:

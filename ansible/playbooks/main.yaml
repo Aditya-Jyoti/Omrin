@@ -16,5 +16,7 @@
       tags: ssh
     - role: services
       tags: services
+    - role: arr_stack
+      tags: arr_stack
     - role: backup
       tags: backup
