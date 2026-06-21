@@ -38,6 +38,10 @@ services:
     enabled: true
   - name: omni-tools
     enabled: true
+  - name: wallabag
+    enabled: true
+  - name: excalidash
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
