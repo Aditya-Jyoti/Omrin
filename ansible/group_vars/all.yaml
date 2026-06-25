@@ -42,6 +42,10 @@ services:
     enabled: true
   - name: excalidash
     enabled: true
+  - name: pingvin
+    enabled: true
+  - name: firefly
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
