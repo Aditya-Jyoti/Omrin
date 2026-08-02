@@ -15,8 +15,6 @@ backup_schedule: "00:30" # systemd OnCalendar time, server-local time CEST
 backup_exclude_paths:
   - "arr-stack/downloads/**" # transient torrent staging, not worth backing up
 
-arr_stack_enabled: false
-
 services:
   - name: traefik
     enabled: true
@@ -41,6 +39,12 @@ services:
   - name: wallabag
     enabled: true
   - name: excalidash
+    enabled: true
+  - name: pingvin
+    enabled: true
+  - name: firefly
+    enabled: true
+  - name: crafty
     enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"

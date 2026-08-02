@@ -19,9 +19,18 @@ services:
       - "--entryPoints.web.address=:80"
       - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
       - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+      - "--serversTransport.insecureSkipVerify=true" # for crafty not to reject internal self signed cert
 
       - "--entryPoints.websecure.address=:443"
       - "--entryPoints.websecure.http.tls.certResolver=letsencrypt"
+
+      # WebSocket / long-lived connection timeouts
+      - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=0"
+      - "--entryPoints.websecure.transport.respondingTimeouts.writeTimeout=0"
+      - "--entryPoints.websecure.transport.respondingTimeouts.idleTimeout=0"
+      # Allow h2c (HTTP/2 cleartext) backends for gRPC
+      - "--serversTransport.forwardingTimeouts.responseHeaderTimeout=0s"
+      - "--serversTransport.forwardingTimeouts.idleConnTimeout=0s"
 
       # Let's Encrypt
       - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL}"

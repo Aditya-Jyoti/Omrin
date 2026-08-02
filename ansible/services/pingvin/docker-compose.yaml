@@ -1,0 +1,20 @@
+services:
+  pingvin-share:
+    image: smp46/pingvin-share-x:latest
+    container_name: pingvin-share
+    restart: unless-stopped
+    environment:
+      TRUST_PROXY: "true"
+    volumes:
+      - ${DATA_PATH:?}/pingvin-share/data:/opt/app/backend/data
+      - ${DATA_PATH:?}/pingvin-share/images:/opt/app/frontend/public/img
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pingvin-share.rule=Host(`share.${DOMAIN:?}`)
+      - traefik.http.services.pingvin-share.loadbalancer.server.port=3000
+
+networks:
+  proxy:
+    external: true
