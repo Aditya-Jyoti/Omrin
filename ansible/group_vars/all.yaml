@@ -15,8 +15,6 @@ backup_schedule: "00:30" # systemd OnCalendar time, server-local time CEST
 backup_exclude_paths:
   - "arr-stack/downloads/**" # transient torrent staging, not worth backing up
 
-arr_stack_enabled: false
-
 services:
   - name: traefik
     enabled: true
