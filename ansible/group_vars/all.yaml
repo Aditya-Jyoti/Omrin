@@ -46,6 +46,8 @@ services:
     enabled: true
   - name: firefly
     enabled: true
+  - name: crafty
+    enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 
