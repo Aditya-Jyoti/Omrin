@@ -1,0 +1,28 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    container_name: open-webui
+    restart: unless-stopped
+
+    environment:
+      WEBUI_SECRET_KEY: ${APP_SECRET:?}
+      MCP_ENABLE: "true"
+
+    volumes:
+      - ${DATA_PATH}/open-webui:/app/backend/data
+
+    networks:
+      - proxy
+      - mcp
+
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ai.rule=Host(`chat.${DOMAIN:?}`)
+      - traefik.http.services.ai.loadbalancer.server.port=8080
+      - traefik.docker.network=proxy
+
+networks:
+  proxy:
+    external: true
+  mcp:
+    external: true

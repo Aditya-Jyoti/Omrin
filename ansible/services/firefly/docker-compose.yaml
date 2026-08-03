@@ -67,8 +67,28 @@ services:
       - firefly-internal
     depends_on:
       - app
+  mcp:
+    image: node:22-alpine
+    container_name: firefly-mcp
+    restart: unless-stopped
+    environment:
+      FIREFLY_III_BASE_URL: http://app:8080
+      FIREFLY_III_PAT: ${MCP_PAT:?}
+      FIREFLY_III_PRESET: full
+    command:
+      - sh
+      - -c
+      - |
+        npx @firefly-iii-mcp/server --port 3000
+    depends_on:
+      - app
+    networks:
+      - firefly-internal
+      - mcp
 
 networks:
   proxy:
+    external: true
+  mcp:
     external: true
   firefly-internal:

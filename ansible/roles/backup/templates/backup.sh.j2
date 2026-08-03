@@ -41,9 +41,6 @@ RCLONE_OUTPUT=$(rclone sync "{{ data_path }}" "onedrive:{{ onedrive_backup_path 
   --log-file="$LOG_FILE" \
   --log-level INFO \
   --exclude "*.tmp" \
-{% for path in backup_exclude_paths %}
-  --exclude "{{ path }}" \
-{% endfor %}
   --transfers 4 \
   --checkers 8 2>&1)
 

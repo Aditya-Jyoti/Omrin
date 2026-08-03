@@ -1,3 +1,9 @@
+- name: Ensure external Docker networks exist
+  community.docker.docker_network:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ docker_networks }}"
+
 - name: create service directories
   file:
     path: "{{ root_path }}/{{ item.name }}"
