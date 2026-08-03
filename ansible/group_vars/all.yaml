@@ -20,7 +20,7 @@ services:
   - name: traefik
     enabled: true
   - name: syncbrowser
-    enabled: true
+    enabled: false
   - name: linkding
     enabled: true
   - name: radicale
@@ -48,6 +48,8 @@ services:
   - name: crafty
     enabled: true
   - name: openwebui
+    enabled: true
+  - name: affine
     enabled: true
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
