@@ -51,6 +51,15 @@ configs:
             config:
               defaultEnabled: true
               denyByDefault: true
+      auth:
+        methods:
+          oidc:
+            enabled: true
+            clientId: filebrowser
+            clientSecret: "${FILEBROWSER_OIDC_CLIENT_SECRET:?}"
+            issuerUrl: https://auth.${DOMAIN:?}
+            scopes: "openid email profile groups"
+            groupsClaim: groups
 
 networks:
   proxy:

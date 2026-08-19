@@ -35,20 +35,16 @@ services:
     enabled: true
   - name: beszel
     enabled: true
-  - name: omni-tools
-    enabled: true
-  - name: wallabag
-    enabled: true
   - name: excalidash
     enabled: true
   - name: pingvin
     enabled: true
-  - name: firefly
-    enabled: true
-  - name: crafty
-    enabled: false
   - name: openwebui
     enabled: true
+  - name: firefly
+    enabled: false
+  - name: crafty
+    enabled: false
 
 enabled_services: "{{ services | rejectattr('enabled', 'equalto', false) | list }}"
 

@@ -1,0 +1,69 @@
+theme: dark
+default_2fa_method: totp
+server:
+  address: tcp://0.0.0.0:9091/
+  endpoints:
+    authz:
+      forward-auth:
+        implementation: ForwardAuth
+log:
+  level: info
+totp:
+  disable: false
+authentication_backend:
+  ldap:
+    implementation: lldap
+    address: ldap://lldap:3890
+    base_dn: dc=omrin,dc=in
+    user: uid=admin,ou=people,dc=omrin,dc=in
+    password: {{ service_secrets.authelia.LLDAP_ADMIN_PASSWORD }}
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "*.{{ domain }}"
+      policy: one_factor
+session:
+  secret: {{ service_secrets.authelia.AUTHELIA_SESSION_SECRET }}
+  redis:
+    host: authelia-redis
+    port: 6379
+  cookies:
+    - domain: {{ domain }}
+      authelia_url: https://auth.{{ domain }}
+storage:
+  encryption_key: {{ service_secrets.authelia.AUTHELIA_STORAGE_KEY }}
+  local:
+    path: /config/db.sqlite3
+notifier:
+  filesystem:
+    filename: /config/notification.txt
+identity_validation:
+  reset_password:
+    jwt_secret: {{ service_secrets.authelia.AUTHELIA_RESET_PASSWORD_JWT_SECRET }}
+identity_providers:
+  oidc:
+    hmac_secret: {{ service_secrets.authelia.AUTHELIA_OIDC_HMAC_SECRET }}
+    clients:
+      - client_id: filebrowser
+        client_name: FileBrowser Quantum
+        client_secret: '{{ authelia_filebrowser_client_secret_hash }}'
+        public: false
+        authorization_policy: one_factor
+        redirect_uris:
+          - https://files.{{ domain }}/api/auth/oidc/callback
+        scopes:
+          - openid
+          - email
+          - profile
+          - groups
+        response_types:
+          - code
+        grant_types:
+          - authorization_code
+        token_endpoint_auth_method: client_secret_post
+    jwks:
+      - key_id: authelia
+        algorithm: RS256
+        use: sig
+        key: |
+{{ authelia_oidc_rsa_key | indent(10, first=True) }}

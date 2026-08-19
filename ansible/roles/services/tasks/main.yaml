@@ -4,37 +4,37 @@
     state: present
   loop: "{{ docker_networks }}"
 
-- name: create service directories
+- name: Create service directories
   file:
     path: "{{ root_path }}/{{ item.name }}"
     state: directory
   loop: "{{ enabled_services }}"
 
-- name: create data directories
+- name: Create data directories
   file:
     path: "{{ data_path }}/{{ item.name }}"
     state: directory
   loop: "{{ services }}"
 
-- name: copy docker-compose files
+- name: Copy docker-compose files 
   copy:
     src: "{{ services_path }}/{{ item.name }}/docker-compose.yaml"
     dest: "{{ root_path }}/{{ item.name }}/docker-compose.yaml"
   loop: "{{ enabled_services }}"
 
-- name: generate env file per service
+- name: Generate env file per service
   template:
     src: "{{ services_path }}/service.env.j2"
     dest: "{{ root_path }}/{{ item.name }}/.env"
   loop: "{{ enabled_services }}"
 
-- name: start docker services
+- name: Start docker services
   community.docker.docker_compose_v2:
     project_src: "{{ root_path }}/{{ item.name }}"
     state: present
   loop: "{{ enabled_services }}"
 
-- name: stop disabled services
+- name: Stop disabled services
   community.docker.docker_compose_v2:
     project_src: "{{ root_path }}/{{ item.name }}"
     state: absent

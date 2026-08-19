@@ -1,0 +1,22 @@
+services:
+  mcpo-paper-search:
+    image: ghcr.io/open-webui/mcpo:main
+    container_name: mcpo-paper-search
+    restart: unless-stopped
+    command:
+      - "--port"
+      - "8000"
+      - "--api-key"
+      - "${MCPO_PAPER_SEARCH_API_KEY}"
+      - "--"
+      - "uvx"
+      - "paper-search-mcp"
+    environment:
+      PAPER_SEARCH_MCP_UNPAYWALL_EMAIL: "${PAPER_SEARCH_UNPAYWALL_EMAIL}"
+      PAPER_SEARCH_MCP_CORE_API_KEY: "${PAPER_SEARCH_CORE_API_KEY:-}"
+    networks:
+      - mcp
+
+networks:
+  mcp:
+    external: true
